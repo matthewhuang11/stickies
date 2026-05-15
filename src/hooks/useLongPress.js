@@ -3,10 +3,15 @@ import { useRef, useCallback } from 'react'
 export function useLongPress(onLongPress, delay = 500) {
   const timer = useRef(null)
   const startPos = useRef(null)
+  const longFired = useRef(false)
 
   const start = useCallback((e) => {
+    longFired.current = false
     startPos.current = { x: e.clientX, y: e.clientY }
-    timer.current = setTimeout(onLongPress, delay)
+    timer.current = setTimeout(() => {
+      longFired.current = true
+      onLongPress()
+    }, delay)
   }, [onLongPress, delay])
 
   const cancel = useCallback(() => {
@@ -22,10 +27,13 @@ export function useLongPress(onLongPress, delay = 500) {
   }, [cancel])
 
   return {
-    onPointerDown: start,
-    onPointerUp: cancel,
-    onPointerLeave: cancel,
-    onPointerMove: move,
-    onContextMenu: (e) => e.preventDefault(),
+    handlers: {
+      onPointerDown: start,
+      onPointerUp: cancel,
+      onPointerLeave: cancel,
+      onPointerMove: move,
+      onContextMenu: (e) => e.preventDefault(),
+    },
+    longFired,
   }
 }
