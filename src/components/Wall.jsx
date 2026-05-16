@@ -14,6 +14,12 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
   const endX = TRASH_CENTER_X
   const endY = TRASH_CENTER_Y()
 
+  const endDx = endX - startX - STICKY_SIZE / 2
+  const endDy = endY - startY - STICKY_SIZE / 2
+  // Arc peak: 40% across horizontally, 110px above starting position
+  const peakDx = endDx * 0.4
+  const peakDy = -110
+
   return (
     <motion.div
       className="fixed pointer-events-none"
@@ -28,14 +34,18 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
       }}
       initial={{ scale: 1, borderRadius: '4px', rotate: 0, x: 0, y: 0, opacity: 1 }}
       animate={{
-        scale:        [1, 0.22, 0.14],
-        borderRadius: ['4px', '50%', '50%'],
-        rotate:       [0, 200, 490],
-        x:            [0, 0, endX - startX - STICKY_SIZE / 2],
-        y:            [0, 0, endY - startY - STICKY_SIZE / 2],
-        opacity:      [1, 1, 0],
+        scale:        [1, 0.21, 0.19, 0.13],
+        borderRadius: ['4px', '50%', '50%', '50%'],
+        rotate:       [0, 210, 390, 600],
+        x:            [0, 0, peakDx, endDx],
+        y:            [0, 0, peakDy, endDy],
+        opacity:      [1, 1,  1,    0],
       }}
-      transition={{ duration: 0.72, times: [0, 0.45, 1], ease: 'easeIn' }}
+      transition={{
+        duration: 1.1,
+        times: [0, 0.38, 0.58, 1],
+        ease: ['easeIn', 'easeOut', 'easeIn'],
+      }}
       onAnimationComplete={onComplete}
     />
   )
