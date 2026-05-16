@@ -6,7 +6,7 @@ A web app for capturing spontaneous thoughts, reminders, and todos with a tactil
 
 ## Why this exists
 
-I kept opening Notes whenever I had a spontaneous thought, but Notes feels like a document editor when what I actually wanted was a scrap of paper. Stickies is the opposite — minimal, casual, visual. You don't title things. You don't sort things into folders. You just write what's in your head and slap it on the wall.
+I kept opening Notes whenever I had a spontaneous thought, but Notes feels like a document editor when what I actually wanted was a scrap of paper. Stickies is the opposite — minimal, casual, visual. You just write what's in your head and slap it on the wall.
 
 ## What it does
 
@@ -21,7 +21,6 @@ I kept opening Notes whenever I had a spontaneous thought, but Notes feels like 
 - **Capture speed is paramount.** Opening the app should immediately invite a new sticky. Friction is the enemy of spontaneous thoughts.
 - **Charm over polish.** Slight imperfections, physical-feeling animations. The app should feel like real sticky notes, not a flat digital UI.
 - **No categorization at capture time.** Every decision deferred is friction removed. Tags are applied after the fact, if at all.
-- **The wall is the truth.** Filters are just lenses over the one wall. No folders, no spaces, no separation.
 
 ## Stack
 
