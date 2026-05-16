@@ -9,7 +9,21 @@ import { extensions, emptyDoc } from '../lib/tiptap'
 
 const STICKY_SIZE = 160
 const EDITOR_SIZE = 288
+const CARD_HALF_H = EDITOR_SIZE / 2
 const srcScale = STICKY_SIZE / EDITOR_SIZE
+
+function getCardPos() {
+  const vv = window.visualViewport
+  const h   = vv ? vv.height      : window.innerHeight
+  const w   = vv ? vv.width       : window.innerWidth
+  const oTop  = vv ? vv.offsetTop  : 0
+  const oLeft = vv ? vv.offsetLeft : 0
+  return {
+    top:       oTop  + h * 0.08,
+    left:      oLeft + (w - EDITOR_SIZE) / 2,
+    maxHeight: Math.floor(h * 0.88),
+  }
+}
 
 export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags, onCreateTag, onDeleteTag }) {
   const [title, setTitle] = useState(sticky.title)
@@ -32,12 +46,28 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
 
+  const [cardPos, setCardPos] = useState(() => getCardPos())
+  // Capture initial position once (before keyboard appears) for animation offsets
+  const initCardPos = useRef(cardPos)
+
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
+  }, [])
+
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => setCardPos(getCardPos())
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+    }
   }, [])
 
   const editor = useEditor({
@@ -66,9 +96,8 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
     onUpdate({ ...sticky, title: titleRef.current, content: items })
   }
 
-  const dx = origin ? origin.x - window.innerWidth / 2 : 0
-  // Card sits at pt-[8vh] from top, so its center is at 8vh + half of min-height (144px)
-  const dy = origin ? origin.y - (window.innerHeight * 0.08 + 144) : 0
+  const dx = origin ? origin.x - (initCardPos.current.left + CARD_HALF_H) : 0
+  const dy = origin ? origin.y - (initCardPos.current.top  + CARD_HALF_H) : 0
 
   const cardMotion = origin
     ? {
@@ -86,7 +115,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
 
   return (
     <>
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh]">
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <motion.div
         className="absolute inset-0 bg-black/10"
@@ -100,12 +129,16 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
       <motion.div
         {...cardMotion}
         style={{
+          position: 'fixed',
+          top:      cardPos.top,
+          left:     cardPos.left,
+          width:    EDITOR_SIZE,
+          minHeight: EDITOR_SIZE,
+          maxHeight: cardPos.maxHeight,
           backgroundColor: sticky.color,
           boxShadow: '6px 8px 28px rgba(0,0,0,0.22)',
-          width: 288,
-          minHeight: 288,
         }}
-        className="relative z-10 flex flex-col p-4"
+        className="z-10 flex flex-col p-4 overflow-hidden"
         onPointerDown={e => e.stopPropagation()}
       >
         {/* Tag pill */}
@@ -127,7 +160,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
         )}
 
         {/* Body */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto">
           {editor && mode === 'text' && (
             <>
               <BubbleMenu editor={editor} options={{ placement: 'top', offset: 8 }}>
