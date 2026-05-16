@@ -26,7 +26,7 @@ function checklistToDoc(items) {
   return { type: 'doc', content: paras.length ? paras : [{ type: 'paragraph' }] }
 }
 
-export function StickyEditor({ sticky, onUpdate, onClose }) {
+export function StickyEditor({ sticky, onUpdate, onClose, onDelete }) {
   const [title, setTitle] = useState(sticky.title)
   const [mode, setMode] = useState(sticky.mode)
   const [checklist, setChecklist] = useState(
@@ -153,6 +153,15 @@ export function StickyEditor({ sticky, onUpdate, onClose }) {
                   >
                     I
                   </button>
+                  <button
+                    onMouseDown={e => {
+                      e.preventDefault()
+                      editor.chain().focus().toggleBulletList().run()
+                    }}
+                    className={`w-7 h-6 text-xs text-white rounded ${editor.isActive('bulletList') ? 'bg-white/20' : ''}`}
+                  >
+                    •
+                  </button>
                 </div>
               </BubbleMenu>
               <EditorContent
@@ -166,17 +175,25 @@ export function StickyEditor({ sticky, onUpdate, onClose }) {
           )}
         </div>
 
-        {/* Mode toggle */}
+        {/* Bottom toolbar */}
         <div
-          className="flex justify-end mt-3 pt-2"
+          className="flex items-center justify-between mt-3 pt-2"
           style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}
         >
           <button
             onClick={handleModeToggle}
-            className="text-xs text-gray-400 hover:text-gray-700 transition-colors px-1"
+            className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
             title={mode === 'text' ? 'Switch to checklist' : 'Switch to text'}
           >
             {mode === 'text' ? '☑ list' : 'Tt text'}
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-gray-300 hover:text-red-400 transition-colors text-base leading-none"
+            aria-label="Delete sticky"
+            title="Delete"
+          >
+            🗑
           </button>
         </div>
       </div>

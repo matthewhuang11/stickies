@@ -3,9 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 export const extensions = [
   StarterKit.configure({
     heading: false,
-    bulletList: false,
     orderedList: false,
-    listItem: false,
     blockquote: false,
     codeBlock: false,
     code: false,

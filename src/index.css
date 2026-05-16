@@ -14,3 +14,23 @@ body {
 .sticky-content p {
   margin: 0;
 }
+
+.sticky-content ul {
+  list-style: disc;
+  padding-left: 1rem;
+  margin: 0;
+}
+
+.sticky-content li {
+  margin: 0;
+}
+
+.ProseMirror ul {
+  list-style: disc;
+  padding-left: 1rem;
+  margin: 0;
+}
+
+.ProseMirror li {
+  margin: 0;
+}
