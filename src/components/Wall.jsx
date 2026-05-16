@@ -76,6 +76,7 @@ export default function Wall() {
     : null
 
   function handleNewSticky() {
+    window.scrollTo(0, 0)
     const sticky = { ...createSticky(), tagId: filterTagId }
     setPendingSticky(sticky)
     setEditingId(sticky.id)
@@ -99,6 +100,7 @@ export default function Wall() {
   }
 
   function handleEditStart(id) {
+    window.scrollTo(0, 0)
     const el = document.querySelector(`[data-sticky-id="${id}"]`)
     const rect = el?.getBoundingClientRect()
     setEditOrigin(rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : null)
