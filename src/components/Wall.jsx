@@ -43,6 +43,7 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
 export default function Wall() {
   const [stickies, setStickies] = useState(() => loadStickies())
   const [editingId, setEditingId] = useState(null)
+  const [editOrigin, setEditOrigin] = useState(null)
   const [pendingSticky, setPendingSticky] = useState(null)
   const [showToast, setShowToast] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
@@ -66,12 +67,20 @@ export default function Wall() {
     setEditingId(sticky.id)
   }
 
+  function handleEditStart(id) {
+    const el = document.querySelector(`[data-sticky-id="${id}"]`)
+    const rect = el?.getBoundingClientRect()
+    setEditOrigin(rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : null)
+    setEditingId(id)
+  }
+
   function handleDelete() {
     const id = editingId
 
     if (pendingSticky?.id === id) {
       setPendingSticky(null)
       setEditingId(null)
+      setEditOrigin(null)
       return
     }
 
@@ -86,6 +95,7 @@ export default function Wall() {
     const rect = el?.getBoundingClientRect()
 
     setEditingId(null)
+    setEditOrigin(null)
     setStickies(prev => prev.filter(s => s.id !== id))
 
     if (rect) {
@@ -154,6 +164,7 @@ export default function Wall() {
       })
     }
     setEditingId(null)
+    setEditOrigin(null)
   }
 
   return (
@@ -167,7 +178,7 @@ export default function Wall() {
             <StickyNote
               key={sticky.id}
               sticky={sticky}
-              onEdit={setEditingId}
+              onEdit={handleEditStart}
             />
           ))}
         </AnimatePresence>
@@ -210,6 +221,7 @@ export default function Wall() {
           <StickyEditor
             key={editingSticky.id}
             sticky={editingSticky}
+            origin={editOrigin}
             onUpdate={handleUpdate}
             onClose={handleEditorClose}
             onDelete={handleDelete}

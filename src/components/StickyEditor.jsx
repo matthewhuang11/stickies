@@ -5,7 +5,11 @@ import { BubbleMenu } from '@tiptap/react/menus'
 import { ChecklistEditor } from './ChecklistEditor'
 import { extensions, emptyDoc } from '../lib/tiptap'
 
-export function StickyEditor({ sticky, onUpdate, onClose, onDelete }) {
+const STICKY_SIZE = 160
+const EDITOR_SIZE = 288
+const srcScale = STICKY_SIZE / EDITOR_SIZE
+
+export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin }) {
   const [title, setTitle] = useState(sticky.title)
   // mode kept only for legacy checklist stickies
   const mode = sticky.mode
@@ -58,6 +62,23 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete }) {
     onUpdate({ ...sticky, title: titleRef.current, content: items })
   }
 
+  const dx = origin ? origin.x - window.innerWidth / 2 : 0
+  const dy = origin ? origin.y - window.innerHeight / 2 : 0
+
+  const cardMotion = origin
+    ? {
+        initial:    { x: dx, y: dy, scale: srcScale, rotate: sticky.rotation },
+        animate:    { x: 0, y: 0, scale: 1, rotate: 0 },
+        exit:       { x: dx, y: dy, scale: srcScale, opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } },
+        transition: { type: 'spring', stiffness: 300, damping: 26 },
+      }
+    : {
+        initial:    { scale: 0.08, rotate: -28, skewY: 16, y: '36vh', x: '22vw' },
+        animate:    { scale: 1, rotate: 0, skewY: 0, y: 0, x: 0 },
+        exit:       { scale: 0.12, opacity: 0, transition: { duration: 0.16, ease: 'easeIn' } },
+        transition: { type: 'spring', stiffness: 260, damping: 20, mass: 1.1 },
+      }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -69,12 +90,9 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete }) {
         transition={{ duration: 0.18 }}
         onPointerDown={onClose}
       />
-      {/* Card — peels off the pad from bottom-right */}
+      {/* Card */}
       <motion.div
-        initial={{ scale: 0.08, rotate: -28, skewY: 16, y: '36vh', x: '22vw' }}
-        animate={{ scale: 1, rotate: 0, skewY: 0, y: 0, x: 0 }}
-        exit={{ scale: 0.12, opacity: 0, transition: { duration: 0.16, ease: 'easeIn' } }}
-        transition={{ type: 'spring', stiffness: 260, damping: 20, mass: 1.1 }}
+        {...cardMotion}
         style={{
           backgroundColor: sticky.color,
           boxShadow: '6px 8px 28px rgba(0,0,0,0.22)',
