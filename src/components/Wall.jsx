@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useAnimate } from 'framer-motion'
 import { StickyNote } from './StickyNote'
 import { StickyEditor } from './StickyEditor'
 import { createSticky, loadStickies, saveStickies, isStickyEmpty } from '../lib/stickies'
+import { loadTags, saveTags, createTag } from '../lib/tags'
 
 const STICKY_SIZE = 160 // w-40 = 10rem
 // Trash can is fixed at bottom-left: left:32, bottom:32, size:56
@@ -42,6 +43,7 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
 
 export default function Wall() {
   const [stickies, setStickies] = useState(() => loadStickies())
+  const [tags, setTags] = useState(() => loadTags())
   const [editingId, setEditingId] = useState(null)
   const [editOrigin, setEditOrigin] = useState(null)
   const [pendingSticky, setPendingSticky] = useState(null)
@@ -53,9 +55,8 @@ export default function Wall() {
   const toastTimer = useRef(null)
   const [trashScope, trashAnimate] = useAnimate()
 
-  useEffect(() => {
-    saveStickies(stickies)
-  }, [stickies])
+  useEffect(() => { saveStickies(stickies) }, [stickies])
+  useEffect(() => { saveTags(tags) }, [tags])
 
   const editingSticky = editingId
     ? (pendingSticky?.id === editingId ? pendingSticky : stickies.find(s => s.id === editingId) ?? null)
@@ -65,6 +66,18 @@ export default function Wall() {
     const sticky = createSticky()
     setPendingSticky(sticky)
     setEditingId(sticky.id)
+  }
+
+  function handleCreateTag(name, color) {
+    const tag = createTag(name, color)
+    setTags(prev => [tag, ...prev])
+    return tag
+  }
+
+  function handleDeleteTag(tagId) {
+    setTags(prev => prev.filter(t => t.id !== tagId))
+    setStickies(prev => prev.map(s => s.tagId === tagId ? { ...s, tagId: null } : s))
+    setPendingSticky(prev => prev?.tagId === tagId ? { ...prev, tagId: null } : prev)
   }
 
   function handleEditStart(id) {
@@ -178,6 +191,7 @@ export default function Wall() {
             <StickyNote
               key={sticky.id}
               sticky={sticky}
+              tag={tags.find(t => t.id === sticky.tagId) ?? null}
               onEdit={handleEditStart}
             />
           ))}
@@ -222,9 +236,12 @@ export default function Wall() {
             key={editingSticky.id}
             sticky={editingSticky}
             origin={editOrigin}
+            tags={tags}
             onUpdate={handleUpdate}
             onClose={handleEditorClose}
             onDelete={handleDelete}
+            onCreateTag={handleCreateTag}
+            onDeleteTag={handleDeleteTag}
           />
         )}
       </AnimatePresence>

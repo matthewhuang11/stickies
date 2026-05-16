@@ -2,8 +2,9 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { generateHTML } from '@tiptap/core'
 import { extensions } from '../lib/tiptap'
+import { TagPill } from './TagPill'
 
-export function StickyNote({ sticky, onEdit }) {
+export function StickyNote({ sticky, tag, onEdit }) {
   // Only animate if created in this session (not loaded from storage)
   const isNew = Date.now() - sticky.createdAt < 4000
 
@@ -31,6 +32,7 @@ export function StickyNote({ sticky, onEdit }) {
       onClick={() => onEdit(sticky.id)}
     >
       <div className="h-full overflow-hidden flex flex-col gap-1">
+        {tag && <TagPill tag={tag} />}
         {sticky.title && (
           <p className="text-xs font-semibold text-gray-900 leading-tight flex-shrink-0 truncate">
             {sticky.title}

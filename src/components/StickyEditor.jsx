@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import { ChecklistEditor } from './ChecklistEditor'
+import { TagPill } from './TagPill'
+import { TagPopover } from './TagPopover'
 import { extensions, emptyDoc } from '../lib/tiptap'
 
 const STICKY_SIZE = 160
 const EDITOR_SIZE = 288
 const srcScale = STICKY_SIZE / EDITOR_SIZE
 
-export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin }) {
+export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags, onCreateTag, onDeleteTag }) {
   const [title, setTitle] = useState(sticky.title)
+  const [showTagPopover, setShowTagPopover] = useState(false)
+  const currentTag = tags?.find(t => t.id === sticky.tagId) ?? null
   // mode kept only for legacy checklist stickies
   const mode = sticky.mode
 
@@ -80,6 +84,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin }) {
       }
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <motion.div
@@ -102,6 +107,13 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin }) {
         className="relative z-10 flex flex-col p-4"
         onPointerDown={e => e.stopPropagation()}
       >
+        {/* Tag pill */}
+        {currentTag && (
+          <div className="mb-2">
+            <TagPill tag={currentTag} />
+          </div>
+        )}
+
         {/* Title */}
         <input
           value={title}
@@ -145,22 +157,32 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin }) {
           className="flex items-center justify-between mt-3 pt-2"
           style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}
         >
-          {editor && mode === 'text' ? (
-            <div className="flex gap-0.5">
-              <button
-                onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run() }}
-                className={`text-sm px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('bulletList') ? 'bg-black/10 text-gray-700' : ''}`}
-                title="Bullet list (- to start)"
-              >•</button>
-              <button
-                onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleTaskList().run() }}
-                className={`text-xs px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('taskList') ? 'bg-black/10 text-gray-700' : ''}`}
-                title="Checklist"
-              >☑</button>
-            </div>
-          ) : (
-            <div />
-          )}
+          <div className="flex items-center gap-1">
+            {editor && mode === 'text' && (
+              <>
+                <button
+                  onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run() }}
+                  className={`text-sm px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('bulletList') ? 'bg-black/10 text-gray-700' : ''}`}
+                  title="Bullet list (- to start)"
+                >•</button>
+                <button
+                  onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleTaskList().run() }}
+                  className={`text-xs px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('taskList') ? 'bg-black/10 text-gray-700' : ''}`}
+                  title="Checklist"
+                >☑</button>
+              </>
+            )}
+            <button
+              onClick={() => setShowTagPopover(v => !v)}
+              className="flex items-center rounded px-1.5 py-0.5 transition-colors hover:bg-black/5"
+              title="Tag"
+            >
+              {currentTag
+                ? <TagPill tag={currentTag} />
+                : <span className="text-xs text-gray-400 hover:text-gray-700 leading-none">+ tag</span>
+              }
+            </button>
+          </div>
           <button
             onClick={onDelete}
             className="text-gray-300 hover:text-red-400 transition-colors text-base leading-none"
@@ -170,5 +192,24 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin }) {
         </div>
       </motion.div>
     </div>
+
+    <AnimatePresence>
+      {showTagPopover && (
+        <TagPopover
+          tags={tags ?? []}
+          currentTagId={sticky.tagId}
+          onApply={tagId => { onUpdate({ ...sticky, title: titleRef.current, tagId }); setShowTagPopover(false) }}
+          onRemove={() => { onUpdate({ ...sticky, title: titleRef.current, tagId: null }); setShowTagPopover(false) }}
+          onCreate={(name, color) => {
+            const tag = onCreateTag(name, color)
+            onUpdate({ ...sticky, title: titleRef.current, tagId: tag.id })
+            setShowTagPopover(false)
+          }}
+          onDelete={onDeleteTag}
+          onClose={() => setShowTagPopover(false)}
+        />
+      )}
+    </AnimatePresence>
+    </>
   )
 }
