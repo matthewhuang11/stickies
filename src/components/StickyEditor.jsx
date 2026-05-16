@@ -118,7 +118,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
         <input
           value={title}
           onChange={handleTitleChange}
-          placeholder="Title…"
+          placeholder="title…"
           className="w-full bg-transparent outline-none text-sm font-semibold text-gray-900 placeholder-gray-400 mb-2"
         />
         {title && (
@@ -163,19 +163,19 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
                 <button
                   onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run() }}
                   className={`text-sm px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('bulletList') ? 'bg-black/10 text-gray-700' : ''}`}
-                  title="Bullet list (- to start)"
+                  title="bullet list (- to start)"
                 >•</button>
                 <button
                   onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleTaskList().run() }}
                   className={`text-xs px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('taskList') ? 'bg-black/10 text-gray-700' : ''}`}
-                  title="Checklist"
+                  title="checklist"
                 >☑</button>
               </>
             )}
             <button
               onClick={() => setShowTagPopover(v => !v)}
               className="flex items-center rounded px-1.5 py-0.5 transition-colors hover:bg-black/5"
-              title="Tag"
+              title="tag"
             >
               {currentTag
                 ? <TagPill tag={currentTag} />
@@ -186,8 +186,8 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
           <button
             onClick={onDelete}
             className="text-gray-300 hover:text-red-400 transition-colors text-base leading-none"
-            aria-label="Delete sticky"
-            title="Delete"
+            aria-label="delete sticky"
+            title="delete"
           >🗑</button>
         </div>
       </motion.div>

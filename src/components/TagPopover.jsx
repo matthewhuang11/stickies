@@ -29,7 +29,7 @@ export function TagPopover({ tags, currentTagId, onApply, onRemove, onCreate, on
           {/* Existing tags */}
           {tags.length > 0 && (
             <div className="mb-4">
-              <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide mb-2">Tags</p>
+              <p className="text-[11px] text-gray-400 font-semibold tracking-wide mb-2">tags</p>
               <div className="flex flex-wrap gap-1.5">
                 {tags.map(tag => (
                   <button
@@ -43,7 +43,7 @@ export function TagPopover({ tags, currentTagId, onApply, onRemove, onCreate, on
                       className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[11px] leading-none bg-black/15 hover:bg-black/30 flex-shrink-0"
                       onPointerDown={e => e.stopPropagation()}
                       onClick={e => { e.stopPropagation(); onDelete(tag.id) }}
-                      title="Delete tag everywhere"
+                      title="delete tag everywhere"
                     >×</span>
                   </button>
                 ))}
@@ -63,12 +63,12 @@ export function TagPopover({ tags, currentTagId, onApply, onRemove, onCreate, on
 
           {/* Create new tag */}
           <div className={tags.length > 0 || currentTagId ? 'border-t border-gray-100 pt-4' : ''}>
-            <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide mb-2">New tag</p>
+            <p className="text-[11px] text-gray-400 font-semibold tracking-wide mb-2">new tag</p>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleCreate() }}
-              placeholder="Tag name…"
+              placeholder="tag name…"
               autoFocus
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-400 mb-3"
             />
@@ -87,7 +87,7 @@ export function TagPopover({ tags, currentTagId, onApply, onRemove, onCreate, on
               disabled={!name.trim()}
               className="w-full bg-gray-900 text-white text-sm font-medium rounded-lg py-2 disabled:opacity-35 transition-opacity"
             >
-              Create &amp; apply
+              create & apply
             </button>
           </div>
         </div>

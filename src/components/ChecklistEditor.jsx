@@ -36,7 +36,7 @@ export function ChecklistEditor({ items, onChange }) {
           <input
             ref={el => inputRefs.current[idx] = el}
             value={item.text}
-            placeholder="Item…"
+            placeholder="item…"
             onChange={e => updateItem(item.id, { text: e.target.value })}
             onKeyDown={e => {
               if (e.key === 'Enter') { e.preventDefault(); addItemAfter(idx) }

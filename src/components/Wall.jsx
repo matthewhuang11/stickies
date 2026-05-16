@@ -16,9 +16,9 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
 
   const endDx = endX - startX - STICKY_SIZE / 2
   const endDy = endY - startY - STICKY_SIZE / 2
-  // Arc peak: 40% across horizontally, 110px above starting position
+  // Arc peak: 40% across horizontally, modest upward arc
   const peakDx = endDx * 0.4
-  const peakDy = -110
+  const peakDy = -55
 
   return (
     <motion.div
@@ -34,16 +34,16 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
       }}
       initial={{ scale: 1, borderRadius: '4px', rotate: 0, x: 0, y: 0, opacity: 1 }}
       animate={{
-        scale:        [1, 0.21, 0.19, 0.13],
+        scale:        [1, 0.22, 0.20, 0.16],
         borderRadius: ['4px', '50%', '50%', '50%'],
-        rotate:       [0, 210, 390, 600],
+        rotate:       [0, 180, 340, 500],
         x:            [0, 0, peakDx, endDx],
         y:            [0, 0, peakDy, endDy],
         opacity:      [1, 1,  1,    0],
       }}
       transition={{
-        duration: 1.1,
-        times: [0, 0.38, 0.58, 1],
+        duration: 1.5,
+        times: [0, 0.44, 0.62, 1],
         ease: ['easeIn', 'easeOut', 'easeIn'],
       }}
       onAnimationComplete={onComplete}
@@ -267,12 +267,12 @@ export default function Wall() {
             className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-gray-900 text-white text-sm px-4 py-2 rounded-full shadow-lg whitespace-nowrap"
             style={{ zIndex: 300 }}
           >
-            <span>Sticky deleted</span>
+            <span>sticky deleted</span>
             <button
               onClick={handleUndo}
               className="font-semibold text-amber-300 hover:text-amber-200 transition-colors"
             >
-              Undo
+              undo
             </button>
           </motion.div>
         )}

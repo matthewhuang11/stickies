@@ -1,14 +1,14 @@
 const KEY = 'stickies.tags'
 
 export const TAG_COLORS = [
-  '#d47f8c', // dusty rose
-  '#6fa87e', // sage green
-  '#7292b8', // slate blue
-  '#c9a040', // mustard
-  '#c27055', // terracotta
-  '#9b80c8', // lavender
-  '#4a9e9e', // muted teal
-  '#e08870', // soft coral
+  '#cb8895', // dusty rose
+  '#7aaa84', // sage
+  '#7b94b4', // slate
+  '#bf9e46', // antique gold
+  '#b87560', // terracotta
+  '#9d87c5', // dusty violet
+  '#569b9b', // dusty teal
+  '#cf8c79', // dusty coral
 ]
 
 export function loadTags() {
