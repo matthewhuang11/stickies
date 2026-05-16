@@ -4,5 +4,6 @@
       "Bash(curl -s http://localhost:5173)",
       "Bash(open http://localhost:5173)"
     ]
-  }
+  },
+  "includeCoAuthoredBy": false
 }
