@@ -1,14 +1,9 @@
-import { useRef, useMemo } from 'react'
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { generateHTML } from '@tiptap/core'
 import { extensions } from '../lib/tiptap'
 
 export function StickyNote({ sticky, onEdit }) {
-  // Fixed random crumple angle per sticky instance
-  const crumpleAngle = useRef(
-    sticky.rotation + (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 15 + 15)
-  )
-
   const html = useMemo(() => {
     if (sticky.mode !== 'text') return null
     try { return generateHTML(sticky.content, extensions) } catch { return '' }
@@ -16,15 +11,10 @@ export function StickyNote({ sticky, onEdit }) {
 
   return (
     <motion.div
+      data-sticky-id={sticky.id}
       initial={{ rotate: sticky.rotation }}
       animate={{ rotate: sticky.rotation }}
-      exit={{
-        scale: 0.3,
-        rotate: crumpleAngle.current,
-        skewX: -8,
-        opacity: 0,
-        transition: { duration: 0.45, ease: [0.4, 0, 1, 1] },
-      }}
+      exit={{ opacity: 0, transition: { duration: 0.08 } }}
       style={{
         backgroundColor: sticky.color,
         boxShadow: '3px 4px 12px rgba(0,0,0,0.18)',
@@ -46,6 +36,7 @@ export function StickyNote({ sticky, onEdit }) {
           />
         )}
 
+        {/* Legacy checklist stickies */}
         {sticky.mode === 'checklist' && Array.isArray(sticky.content) && (
           <ul className="space-y-0.5 overflow-hidden">
             {sticky.content.map(item => (
