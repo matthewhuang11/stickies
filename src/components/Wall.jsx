@@ -43,6 +43,7 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
 export default function Wall() {
   const [stickies, setStickies] = useState(() => loadStickies())
   const [editingId, setEditingId] = useState(null)
+  const [pendingSticky, setPendingSticky] = useState(null)
   const [showToast, setShowToast] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
   const [ballState, setBallState] = useState(null) // { startX, startY, color }
@@ -55,16 +56,25 @@ export default function Wall() {
     saveStickies(stickies)
   }, [stickies])
 
-  const editingSticky = stickies.find(s => s.id === editingId) ?? null
+  const editingSticky = editingId
+    ? (pendingSticky?.id === editingId ? pendingSticky : stickies.find(s => s.id === editingId) ?? null)
+    : null
 
   function handleNewSticky() {
     const sticky = createSticky()
-    setStickies(prev => [...prev, sticky])
+    setPendingSticky(sticky)
     setEditingId(sticky.id)
   }
 
   function handleDelete() {
     const id = editingId
+
+    if (pendingSticky?.id === id) {
+      setPendingSticky(null)
+      setEditingId(null)
+      return
+    }
+
     const idx = stickies.findIndex(s => s.id === id)
     if (idx === -1) return
 
@@ -122,16 +132,27 @@ export default function Wall() {
   }
 
   function handleUpdate(updatedSticky) {
-    setStickies(prev => prev.map(s => s.id === updatedSticky.id ? updatedSticky : s))
+    if (pendingSticky?.id === updatedSticky.id) {
+      setPendingSticky(updatedSticky)
+    } else {
+      setStickies(prev => prev.map(s => s.id === updatedSticky.id ? updatedSticky : s))
+    }
   }
 
   function handleEditorClose() {
-    const id = editingId
-    setStickies(prev => {
-      const sticky = prev.find(s => s.id === id)
-      if (sticky && isStickyEmpty(sticky)) return prev.filter(s => s.id !== id)
-      return prev
-    })
+    if (pendingSticky) {
+      if (!isStickyEmpty(pendingSticky)) {
+        setStickies(prev => [...prev, pendingSticky])
+      }
+      setPendingSticky(null)
+    } else {
+      const id = editingId
+      setStickies(prev => {
+        const sticky = prev.find(s => s.id === id)
+        if (sticky && isStickyEmpty(sticky)) return prev.filter(s => s.id !== id)
+        return prev
+      })
+    }
     setEditingId(null)
   }
 
