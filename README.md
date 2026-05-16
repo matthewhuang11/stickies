@@ -2,7 +2,7 @@
 
 A web app for capturing spontaneous thoughts, reminders, and todos with a tactile sticky-note aesthetic. Think: a wall of slightly-tilted paper notes that accumulates over time. The anti-Apple-Notes.
 
-> Built as a personal side project. Live at [your-url-here].
+> Built as a personal side project. Live at https://stickies-seven.vercel.app/.
 
 ## Why this exists
 
