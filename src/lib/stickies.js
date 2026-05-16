@@ -1,16 +1,12 @@
 import { emptyDoc, docFromText } from './tiptap'
 
-function migrateSticky(sticky) {
-  if (typeof sticky.content === 'string') {
-    return {
-      ...sticky,
-      title: sticky.title ?? '',
-      mode: 'text',
-      content: docFromText(sticky.content),
-      completedAt: sticky.completedAt ?? null,
-    }
+function migrateSticky(raw) {
+  let s = raw
+  if (typeof s.content === 'string') {
+    s = { ...s, title: s.title ?? '', mode: 'text', content: docFromText(s.content), completedAt: s.completedAt ?? null }
   }
-  return sticky
+  if (s.tagId === undefined) s = { ...s, tagId: null }
+  return s
 }
 
 export function createSticky() {
@@ -23,6 +19,7 @@ export function createSticky() {
     rotation: parseFloat((Math.random() * 8 - 4).toFixed(2)),
     createdAt: Date.now(),
     completedAt: null,
+    tagId: null,
   }
 }
 
