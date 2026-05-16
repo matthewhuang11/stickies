@@ -6,9 +6,15 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
+  background-color: #faf6f0; /* match wall — hides iOS overscroll bounce gap */
+  overscroll-behavior: none; /* prevent pull-to-refresh in standalone mode */
+}
+
+body {
   font-family: 'Segoe UI', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ── Shared sticky content (wall view) ─────────────────────── */

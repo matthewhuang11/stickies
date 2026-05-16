@@ -4,7 +4,7 @@ import { generateHTML } from '@tiptap/core'
 import { extensions } from '../lib/tiptap'
 import { TagPill } from './TagPill'
 
-export function StickyNote({ sticky, tag, onEdit }) {
+export function StickyNote({ sticky, tag, onEdit, filterTagId, onFilterTag }) {
   // Only animate if created in this session (not loaded from storage)
   const isNew = Date.now() - sticky.createdAt < 4000
 
@@ -15,13 +15,14 @@ export function StickyNote({ sticky, tag, onEdit }) {
 
   return (
     <motion.div
+      layout
       data-sticky-id={sticky.id}
       initial={isNew ? { rotate: sticky.rotation + 25 } : { rotate: sticky.rotation }}
       animate={{ rotate: sticky.rotation }}
       transition={isNew
         ? { type: 'spring', stiffness: 140, damping: 14, mass: 1.4 }
-        : { duration: 0 }}
-      exit={{ opacity: 0, transition: { duration: 0.08 } }}
+        : { duration: 0, layout: { type: 'spring', stiffness: 380, damping: 32 } }}
+      exit={{ opacity: 0, transition: { duration: 0.12 } }}
       style={{
         backgroundColor: sticky.color,
         boxShadow: '3px 4px 12px rgba(0,0,0,0.18)',
@@ -32,7 +33,13 @@ export function StickyNote({ sticky, tag, onEdit }) {
       onClick={() => onEdit(sticky.id)}
     >
       <div className="h-full overflow-hidden flex flex-col gap-1">
-        {tag && <TagPill tag={tag} />}
+        {tag && (
+          <TagPill
+            tag={tag}
+            isActive={filterTagId === tag.id}
+            onClick={onFilterTag ? () => onFilterTag(tag.id) : undefined}
+          />
+        )}
         {sticky.title && (
           <p className="text-xs font-semibold text-gray-900 leading-tight flex-shrink-0 truncate">
             {sticky.title}

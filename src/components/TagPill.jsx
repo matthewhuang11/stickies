@@ -7,11 +7,17 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-export function TagPill({ tag }) {
+export function TagPill({ tag, isActive, onClick }) {
   return (
     <span
-      style={{ backgroundColor: hexToRgba(tag.color, 0.88), color: getContrastColor(tag.color) }}
-      className="inline-block rounded-full text-[10px] font-medium leading-none px-[6px] py-[2px] max-w-[96px] truncate flex-shrink-0"
+      style={{
+        backgroundColor: hexToRgba(tag.color, isActive ? 1 : 0.88),
+        color: getContrastColor(tag.color),
+        transform: isActive ? 'scale(1.08)' : 'scale(1)',
+        transition: 'transform 0.15s ease, background-color 0.15s ease',
+      }}
+      className={`self-start w-fit rounded-full text-[10px] font-medium leading-none px-[6px] py-[2px] max-w-[96px] truncate${onClick ? ' cursor-pointer' : ''}`}
+      onClick={onClick ? e => { e.stopPropagation(); onClick() } : undefined}
     >
       {tag.name}
     </span>

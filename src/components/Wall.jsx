@@ -32,19 +32,21 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
         boxShadow: '3px 4px 12px rgba(0,0,0,0.18)',
         zIndex: 200,
       }}
-      initial={{ scale: 1, borderRadius: '4px', rotate: 0, x: 0, y: 0, opacity: 1 }}
+      initial={{ scale: 1, borderRadius: '4px', rotate: 0, skewX: 0, skewY: 0, x: 0, y: 0, opacity: 1 }}
       animate={{
-        scale:        [1, 0.22, 0.20, 0.16],
-        borderRadius: ['4px', '50%', '50%', '50%'],
-        rotate:       [0, 180, 340, 500],
-        x:            [0, 0, peakDx, endDx],
-        y:            [0, 0, peakDy, endDy],
-        opacity:      [1, 1,  1,    0],
+        scale:        [1, 0.86, 0.22, 0.20, 0.17],
+        skewX:        [0,   14,   -4,    0,    0],
+        skewY:        [0,   -7,    2,    0,    0],
+        borderRadius: ['4px', '16px', '50%', '50%', '50%'],
+        rotate:       [0,  10,  140,  260,  390],
+        x:            [0,   0,    0, peakDx, endDx],
+        y:            [0,   0,    0, peakDy, endDy],
+        opacity:      [1,   1,    1,     1,    0],
       }}
       transition={{
-        duration: 1.5,
-        times: [0, 0.44, 0.62, 1],
-        ease: ['easeIn', 'easeOut', 'easeIn'],
+        duration: 1.3,
+        times: [0, 0.20, 0.44, 0.64, 1],
+        ease: ['easeOut', 'easeIn', 'easeOut', 'easeIn'],
       }}
       onAnimationComplete={onComplete}
     />
@@ -54,6 +56,7 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
 export default function Wall() {
   const [stickies, setStickies] = useState(() => loadStickies())
   const [tags, setTags] = useState(() => loadTags())
+  const [filterTagId, setFilterTagId] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [editOrigin, setEditOrigin] = useState(null)
   const [pendingSticky, setPendingSticky] = useState(null)
@@ -73,9 +76,13 @@ export default function Wall() {
     : null
 
   function handleNewSticky() {
-    const sticky = createSticky()
+    const sticky = { ...createSticky(), tagId: filterTagId }
     setPendingSticky(sticky)
     setEditingId(sticky.id)
+  }
+
+  function handleFilterTag(tagId) {
+    setFilterTagId(prev => prev === tagId ? null : tagId)
   }
 
   function handleCreateTag(name, color) {
@@ -88,6 +95,7 @@ export default function Wall() {
     setTags(prev => prev.filter(t => t.id !== tagId))
     setStickies(prev => prev.map(s => s.tagId === tagId ? { ...s, tagId: null } : s))
     setPendingSticky(prev => prev?.tagId === tagId ? { ...prev, tagId: null } : prev)
+    setFilterTagId(prev => prev === tagId ? null : prev)
   }
 
   function handleEditStart(id) {
@@ -197,14 +205,18 @@ export default function Wall() {
     >
       <div className="flex flex-wrap gap-6 p-8 content-start">
         <AnimatePresence>
-          {stickies.map(sticky => (
-            <StickyNote
-              key={sticky.id}
-              sticky={sticky}
-              tag={tags.find(t => t.id === sticky.tagId) ?? null}
-              onEdit={handleEditStart}
-            />
-          ))}
+          {stickies
+            .filter(s => !filterTagId || s.tagId === filterTagId)
+            .map(sticky => (
+              <StickyNote
+                key={sticky.id}
+                sticky={sticky}
+                tag={tags.find(t => t.id === sticky.tagId) ?? null}
+                filterTagId={filterTagId}
+                onEdit={handleEditStart}
+                onFilterTag={handleFilterTag}
+              />
+            ))}
         </AnimatePresence>
       </div>
 
@@ -254,6 +266,27 @@ export default function Wall() {
             onDeleteTag={handleDeleteTag}
           />
         )}
+      </AnimatePresence>
+
+      {/* Active filter indicator */}
+      <AnimatePresence>
+        {filterTagId && (() => {
+          const ft = tags.find(t => t.id === filterTagId)
+          return ft ? (
+            <motion.button
+              key="filter-indicator"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.16 }}
+              onClick={() => setFilterTagId(null)}
+              className="fixed top-3 right-4 z-10 flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-800 transition-colors bg-white/75 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm"
+            >
+              <span className="opacity-60">✕</span>
+              <span>{ft.name}</span>
+            </motion.button>
+          ) : null
+        })()}
       </AnimatePresence>
 
       {/* Undo toast */}
