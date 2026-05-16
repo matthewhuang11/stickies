@@ -67,7 +67,8 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
   }
 
   const dx = origin ? origin.x - window.innerWidth / 2 : 0
-  const dy = origin ? origin.y - window.innerHeight / 2 : 0
+  // Card sits at pt-[8vh] from top, so its center is at 8vh + half of min-height (144px)
+  const dy = origin ? origin.y - (window.innerHeight * 0.08 + 144) : 0
 
   const cardMotion = origin
     ? {
@@ -85,7 +86,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
 
   return (
     <>
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh]">
       {/* Backdrop */}
       <motion.div
         className="absolute inset-0 bg-black/10"
@@ -143,6 +144,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
               </BubbleMenu>
               <EditorContent
                 editor={editor}
+                style={{ scrollMarginTop: 80 }}
                 className="[&_.ProseMirror]:outline-none [&_.ProseMirror_p]:m-0 [&_.ProseMirror]:min-h-[140px] [&_.ProseMirror]:text-sm [&_.ProseMirror]:text-gray-800 [&_.ProseMirror]:leading-snug"
               />
             </>
