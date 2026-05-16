@@ -10,26 +10,25 @@ I kept opening Notes whenever I had a spontaneous thought, but Notes feels like 
 
 ## What it does
 
-- **Tap the pad, type, done.** No friction, no save button, no titles required.
-- **One unified sticky.** Plain text by default; toggle into checklist mode for todos. Optional title if you want one. Bold and italic for emphasis.
-- **A wall, not a list.** Stickies live on a wall with subtle random rotation and offset. Older stickies stick around — completed ones get a check-mark treatment but don't disappear.
-- **Tags as lenses, not folders.** Optional tags categorize without requiring a decision at capture time. Tap any tag pill on any sticky to filter the wall to that tag.
-- **Different sticky colors.** Pick whatever feels right — color is aesthetic, not categorical.
-- **Satisfying physics.** Stickies peel off the pad, fly onto the wall with a slight settle. Deleted stickies crumple.
+- **Tap +, type, done.** No friction, no save button. The sticky doesn't appear on the wall until you dismiss the editor — until then it's just a draft.
+- **Rich text, lightly.** Each sticky is a Tiptap document. Bold and italic via the bubble menu. Bullet lists and inline task lists (☑) via the toolbar. Optional title if you want one.
+- **A wall, not a list.** Stickies live on a corkboard with random rotation. They stay until you delete them.
+- **Tags as lenses, not folders.** Create named tags and assign one to any sticky. Tap a tag pill on the wall to filter — the wall reflows, showing only stickies with that tag. Tap again or the × indicator to clear.
+- **Satisfying deletions.** Deleted stickies crumple and arc into the trash can. Four seconds to undo.
 
 ## Design principles
 
 - **Capture speed is paramount.** Opening the app should immediately invite a new sticky. Friction is the enemy of spontaneous thoughts.
-- **Charm over polish.** Paper textures, slight imperfections, hand-drawn touches. The app should feel like physical sticky notes, not a flat digital UI.
-- **No categorization at capture time.** Every decision deferred is friction removed. Tags, colors, and modes are all applied after the fact, if at all.
-- **The wall is the truth.** Filters and views are just lenses over the one wall. No folders, no spaces, no separation.
+- **Charm over polish.** Slight imperfections, physical-feeling animations. The app should feel like real sticky notes, not a flat digital UI.
+- **No categorization at capture time.** Every decision deferred is friction removed. Tags are applied after the fact, if at all.
+- **The wall is the truth.** Filters are just lenses over the one wall. No folders, no spaces, no separation.
 
 ## Stack
 
 - React + Vite
 - Tailwind CSS
-- Framer Motion (for the satisfying animations)
-- Tiptap (for minimal rich text)
+- Framer Motion (animations)
+- Tiptap (rich text editor)
 - localStorage (local-first, no backend)
 - vite-plugin-pwa (installable as a home-screen app)
 
@@ -51,10 +50,10 @@ npm run preview
 
 ## Installing as an app
 
-On iOS: open the live url in Safari, tap the share button, "Add to Home Screen."  
-On Android: open the live url in Chrome, you'll be prompted to install.
+On iOS: open the live URL in Safari → share button → "Add to Home Screen."  
+On Android: open the live URL in Chrome — you'll be prompted to install.
 
-Once installed, Stickies opens as a standalone app with its own icon. All data lives locally on your device.
+Once installed, Stickies opens as a standalone app with its own icon. All data lives locally on your device and works fully offline.
 
 ## Status
 
