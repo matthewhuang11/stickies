@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import { ChecklistEditor } from './ChecklistEditor'
@@ -59,8 +60,21 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/10" onPointerDown={onClose} />
-      <div
+      {/* Backdrop */}
+      <motion.div
+        className="absolute inset-0 bg-black/10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+        onPointerDown={onClose}
+      />
+      {/* Card — peels off the pad from bottom-right */}
+      <motion.div
+        initial={{ scale: 0.08, rotate: -28, skewY: 16, y: '36vh', x: '22vw' }}
+        animate={{ scale: 1, rotate: 0, skewY: 0, y: 0, x: 0 }}
+        exit={{ scale: 0.12, opacity: 0, transition: { duration: 0.16, ease: 'easeIn' } }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20, mass: 1.1 }}
         style={{
           backgroundColor: sticky.color,
           boxShadow: '6px 8px 28px rgba(0,0,0,0.22)',
@@ -136,7 +150,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete }) {
             title="Delete"
           >🗑</button>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

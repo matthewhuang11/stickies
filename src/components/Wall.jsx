@@ -183,15 +183,18 @@ export default function Wall() {
         />
       )}
 
-      {/* Editor */}
-      {editingSticky && (
-        <StickyEditor
-          sticky={editingSticky}
-          onUpdate={handleUpdate}
-          onClose={handleEditorClose}
-          onDelete={handleDelete}
-        />
-      )}
+      {/* Editor — AnimatePresence enables exit animation on close */}
+      <AnimatePresence>
+        {editingSticky && (
+          <StickyEditor
+            key={editingSticky.id}
+            sticky={editingSticky}
+            onUpdate={handleUpdate}
+            onClose={handleEditorClose}
+            onDelete={handleDelete}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Undo toast */}
       <AnimatePresence>

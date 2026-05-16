@@ -4,6 +4,9 @@ import { generateHTML } from '@tiptap/core'
 import { extensions } from '../lib/tiptap'
 
 export function StickyNote({ sticky, onEdit }) {
+  // Only animate if created in this session (not loaded from storage)
+  const isNew = Date.now() - sticky.createdAt < 4000
+
   const html = useMemo(() => {
     if (sticky.mode !== 'text') return null
     try { return generateHTML(sticky.content, extensions) } catch { return '' }
@@ -12,8 +15,13 @@ export function StickyNote({ sticky, onEdit }) {
   return (
     <motion.div
       data-sticky-id={sticky.id}
-      initial={{ rotate: sticky.rotation }}
-      animate={{ rotate: sticky.rotation }}
+      initial={isNew
+        ? { rotate: sticky.rotation + 5, scale: 1.12, y: -18, opacity: 0 }
+        : { rotate: sticky.rotation }}
+      animate={{ rotate: sticky.rotation, scale: 1, y: 0, opacity: 1 }}
+      transition={isNew
+        ? { type: 'spring', stiffness: 480, damping: 16, mass: 0.7 }
+        : { duration: 0 }}
       exit={{ opacity: 0, transition: { duration: 0.08 } }}
       style={{
         backgroundColor: sticky.color,
