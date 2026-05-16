@@ -15,12 +15,17 @@ export function StickyNote({ sticky, onEdit }) {
   return (
     <motion.div
       data-sticky-id={sticky.id}
-      initial={isNew
-        ? { rotate: sticky.rotation + 5, scale: 1.12, y: -18, opacity: 0 }
-        : { rotate: sticky.rotation }}
-      animate={{ rotate: sticky.rotation, scale: 1, y: 0, opacity: 1 }}
+      initial={isNew ? { opacity: 0 } : { rotate: sticky.rotation }}
+      animate={isNew
+        ? {
+            rotate: [sticky.rotation + 4, sticky.rotation + 4, sticky.rotation - 0.8, sticky.rotation],
+            scale:  [1.08, 0.93, 1.04, 1],
+            y:      [-14, 0, 0, 0],
+            opacity: [0, 1, 1, 1],
+          }
+        : { rotate: sticky.rotation, scale: 1, y: 0, opacity: 1 }}
       transition={isNew
-        ? { type: 'spring', stiffness: 480, damping: 16, mass: 0.7 }
+        ? { duration: 0.55, times: [0, 0.42, 0.7, 1], ease: ['easeIn', 'easeOut', 'easeOut'] }
         : { duration: 0 }}
       exit={{ opacity: 0, transition: { duration: 0.08 } }}
       style={{
