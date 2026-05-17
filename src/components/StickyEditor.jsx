@@ -143,7 +143,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
       >
         {/* Tag pill */}
         {currentTag && (
-          <div className="mb-2">
+          <div className="mb-2 flex-shrink-0">
             <TagPill tag={currentTag} />
           </div>
         )}
@@ -153,14 +153,14 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
           value={title}
           onChange={handleTitleChange}
           placeholder="title…"
-          className="w-full bg-transparent outline-none text-sm font-semibold text-gray-900 placeholder-gray-400 mb-2"
+          className="w-full bg-transparent outline-none text-sm font-semibold text-gray-900 placeholder-gray-400 mb-2 flex-shrink-0"
         />
         {title && (
-          <div className="h-px mb-2" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }} />
+          <div className="h-px mb-2 flex-shrink-0" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }} />
         )}
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Body — min-h-0 lets it shrink below content size so overflow-y scroll works */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {editor && mode === 'text' && (
             <>
               <BubbleMenu editor={editor} options={{ placement: 'top', offset: 8 }}>
@@ -189,7 +189,7 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
 
         {/* Bottom toolbar */}
         <div
-          className="flex items-center justify-between mt-3 pt-2"
+          className="flex items-center justify-between mt-3 pt-2 flex-shrink-0"
           style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}
         >
           <div className="flex items-center gap-1">
@@ -201,7 +201,10 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
                   title="bullet list (- to start)"
                 >•</button>
                 <button
-                  onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleTaskList().run() }}
+                  onMouseDown={e => {
+                    e.preventDefault()
+                    editor.chain().focus().toggleTaskList().run()
+                  }}
                   className={`text-xs px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('taskList') ? 'bg-black/10 text-gray-700' : ''}`}
                   title="checklist"
                 >☑</button>

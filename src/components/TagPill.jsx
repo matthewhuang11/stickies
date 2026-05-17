@@ -16,7 +16,7 @@ export function TagPill({ tag, isActive, onClick }) {
         transform: isActive ? 'scale(1.08)' : 'scale(1)',
         transition: 'transform 0.15s ease, background-color 0.15s ease',
       }}
-      className={`self-start w-fit rounded-full text-[10px] font-medium leading-none px-[6px] py-[2px] max-w-[96px] truncate${onClick ? ' cursor-pointer' : ''}`}
+      className={`self-start w-fit flex-shrink-0 rounded-full text-[10px] font-medium leading-none px-[6px] py-[2px] max-w-[96px] truncate${onClick ? ' cursor-pointer' : ''}`}
       onClick={onClick ? e => { e.stopPropagation(); onClick() } : undefined}
     >
       {tag.name}
