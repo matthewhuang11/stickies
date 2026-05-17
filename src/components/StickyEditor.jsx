@@ -203,7 +203,11 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
                 <button
                   onMouseDown={e => {
                     e.preventDefault()
-                    editor.chain().focus().toggleTaskList().run()
+                    if (editor.isActive('taskItem')) {
+                      editor.chain().focus().liftListItem('taskItem').run()
+                    } else {
+                      editor.chain().focus().wrapInList('taskList').run()
+                    }
                   }}
                   className={`text-xs px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors leading-none ${editor.isActive('taskList') ? 'bg-black/10 text-gray-700' : ''}`}
                   title="checklist"
