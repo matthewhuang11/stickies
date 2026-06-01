@@ -200,6 +200,8 @@ export default function Wall() {
     setEditOrigin(null)
   }
 
+  const visibleStickies = stickies.filter(s => !filterTagId || s.tagId === filterTagId)
+
   return (
     <div
       className="min-h-screen w-full relative"
@@ -207,8 +209,7 @@ export default function Wall() {
     >
       <div className="flex flex-wrap gap-6 p-8 content-start">
         <AnimatePresence>
-          {stickies
-            .filter(s => !filterTagId || s.tagId === filterTagId)
+          {visibleStickies
             .map(sticky => (
               <StickyNote
                 key={sticky.id}
@@ -221,6 +222,26 @@ export default function Wall() {
             ))}
         </AnimatePresence>
       </div>
+
+      {/* Empty state */}
+      <AnimatePresence>
+        {visibleStickies.length === 0 && !editingSticky && (
+          <motion.div
+            key="empty-state"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+          >
+            <p className="text-[15px] text-stone-400">
+              {filterTagId ? 'No stickies with this tag' : (
+                <>Press <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-base font-light leading-none align-middle" style={{ backgroundColor: '#d97706' }}>+</span> to add a sticky note</>
+              )}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* + button */}
       <button
