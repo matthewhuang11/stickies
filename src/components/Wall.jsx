@@ -225,7 +225,7 @@ export default function Wall() {
 
       {/* Empty state */}
       <AnimatePresence>
-        {visibleStickies.length === 0 && !editingSticky && (
+        {stickies.length === 0 && !editingSticky && (
           <motion.div
             key="empty-state"
             initial={{ opacity: 0 }}
@@ -234,10 +234,8 @@ export default function Wall() {
             transition={{ duration: 0.3, delay: 0.1 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
           >
-            <p className="text-[15px] text-stone-400">
-              {filterTagId ? 'No stickies with this tag' : (
-                <>Press <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-base font-light leading-none align-middle" style={{ backgroundColor: '#d97706' }}>+</span> to add a sticky note</>
-              )}
+            <p className="text-[15px] text-stone-300">
+              Press <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-base font-light leading-none align-middle" style={{ backgroundColor: '#e5c99a' }}>+</span> to add a sticky note
             </p>
           </motion.div>
         )}
