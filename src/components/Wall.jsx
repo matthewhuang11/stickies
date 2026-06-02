@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion, useAnimate } from 'framer-motion'
 import { StickyNote } from './StickyNote'
 import { StickyEditor } from './StickyEditor'
-import { createSticky, loadStickies, saveStickies, isStickyEmpty } from '../lib/stickies'
+import { createSticky, loadStickies, saveStickies } from '../lib/stickies'
 import { loadTags, saveTags, createTag } from '../lib/tags'
 
 const STICKY_SIZE = 160 // w-40 = 10rem
@@ -184,17 +184,8 @@ export default function Wall() {
 
   function handleEditorClose() {
     if (pendingSticky) {
-      if (!isStickyEmpty(pendingSticky)) {
-        setStickies(prev => [...prev, pendingSticky])
-      }
+      setStickies(prev => [...prev, pendingSticky])
       setPendingSticky(null)
-    } else {
-      const id = editingId
-      setStickies(prev => {
-        const sticky = prev.find(s => s.id === id)
-        if (sticky && isStickyEmpty(sticky)) return prev.filter(s => s.id !== id)
-        return prev
-      })
     }
     setEditingId(null)
     setEditOrigin(null)
