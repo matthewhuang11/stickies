@@ -59,7 +59,7 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
   )
 }
 
-export default function Wall() {
+export default function Wall({ user }) {
   const [stickies, setStickies] = useState([])
   const [tags, setTags] = useState([])
   const [loading, setLoading] = useState(true)
@@ -69,11 +69,22 @@ export default function Wall() {
   const [pendingSticky, setPendingSticky] = useState(null)
   const [showToast, setShowToast] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
-  const [ballState, setBallState] = useState(null) // { startX, startY, color }
+  const [ballState, setBallState] = useState(null)
+  const [showMenu, setShowMenu] = useState(false)
 
   const deletedRef = useRef(null)
   const toastTimer = useRef(null)
+  const menuRef = useRef(null)
   const [trashScope, trashAnimate] = useAnimate()
+
+  useEffect(() => {
+    if (!showMenu) return
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showMenu])
 
   useEffect(() => {
     Promise.all([fetchStickies(), fetchTags()])
@@ -252,13 +263,28 @@ export default function Wall() {
         )}
       </AnimatePresence>
 
-      {/* Sign out */}
-      <button
-        onClick={() => supabase.auth.signOut()}
-        className="fixed top-3 left-4 z-10 text-[11px] text-stone-300 hover:text-stone-500 transition-colors"
-      >
-        sign out
-      </button>
+      {/* User avatar menu */}
+      <div ref={menuRef} className="fixed top-3 left-4 z-20">
+        <button
+          onClick={() => setShowMenu(m => !m)}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold text-white shadow-sm"
+          style={{ backgroundColor: '#d97706' }}
+        >
+          {user?.email?.[0]?.toUpperCase() ?? '?'}
+        </button>
+        {showMenu && (
+          <div className="absolute top-9 left-0 bg-white rounded-xl shadow-lg border border-stone-100 py-1 min-w-[120px]">
+            <p className="px-3 py-1.5 text-[11px] text-stone-400 truncate max-w-[160px]">{user?.email}</p>
+            <hr className="border-stone-100 mx-2" />
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="w-full text-left px-3 py-1.5 text-sm text-stone-600 hover:bg-stone-50 transition-colors"
+            >
+              Sign out
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* + button */}
       <button

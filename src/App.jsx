@@ -18,7 +18,9 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  if (user === undefined) return null
+  if (user === undefined) return (
+    <div className="min-h-screen" style={{ backgroundColor: '#faf6f0' }} />
+  )
 
-  return user ? <Wall /> : <LoginPage />
+  return user ? <Wall user={user} /> : <LoginPage />
 }
