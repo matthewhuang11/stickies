@@ -2,8 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion, useAnimate } from 'framer-motion'
 import { StickyNote } from './StickyNote'
 import { StickyEditor } from './StickyEditor'
-import { createSticky, loadStickies, saveStickies } from '../lib/stickies'
-import { loadTags, saveTags, createTag } from '../lib/tags'
+import { createSticky } from '../lib/stickies'
+import { createTag } from '../lib/tags'
+import { supabase } from '../lib/supabase'
+import {
+  fetchStickies, fetchTags,
+  insertSticky, updateSticky, deleteSticky,
+  insertTag, deleteTag, clearTagFromStickies,
+} from '../lib/db'
 
 const STICKY_SIZE = 160 // w-40 = 10rem
 // Trash can is fixed at bottom-left: left:32, bottom:32, size:56
@@ -54,8 +60,9 @@ function CrumpleBall({ startX, startY, color, onComplete }) {
 }
 
 export default function Wall() {
-  const [stickies, setStickies] = useState(() => loadStickies())
-  const [tags, setTags] = useState(() => loadTags())
+  const [stickies, setStickies] = useState([])
+  const [tags, setTags] = useState([])
+  const [loading, setLoading] = useState(true)
   const [filterTagId, setFilterTagId] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [editOrigin, setEditOrigin] = useState(null)
@@ -68,8 +75,12 @@ export default function Wall() {
   const toastTimer = useRef(null)
   const [trashScope, trashAnimate] = useAnimate()
 
-  useEffect(() => { saveStickies(stickies) }, [stickies])
-  useEffect(() => { saveTags(tags) }, [tags])
+  useEffect(() => {
+    Promise.all([fetchStickies(), fetchTags()])
+      .then(([s, t]) => { setStickies(s); setTags(t) })
+      .catch(err => console.error('load error:', err))
+      .finally(() => setLoading(false))
+  }, [])
 
   const editingSticky = editingId
     ? (pendingSticky?.id === editingId ? pendingSticky : stickies.find(s => s.id === editingId) ?? null)
@@ -89,6 +100,7 @@ export default function Wall() {
   function handleCreateTag(name, color) {
     const tag = createTag(name, color)
     setTags(prev => [tag, ...prev])
+    insertTag(tag)
     return tag
   }
 
@@ -97,6 +109,8 @@ export default function Wall() {
     setStickies(prev => prev.map(s => s.tagId === tagId ? { ...s, tagId: null } : s))
     setPendingSticky(prev => prev?.tagId === tagId ? { ...prev, tagId: null } : prev)
     setFilterTagId(prev => prev === tagId ? null : prev)
+    deleteTag(tagId)
+    clearTagFromStickies(tagId)
   }
 
   function handleEditStart(id) {
@@ -130,6 +144,7 @@ export default function Wall() {
     setEditingId(null)
     setEditOrigin(null)
     setStickies(prev => prev.filter(s => s.id !== id))
+    deleteSticky(id)
 
     if (rect) {
       setShowTrash(true)
@@ -169,6 +184,7 @@ export default function Wall() {
       next.splice(index, 0, sticky)
       return next
     })
+    insertSticky(sticky)
     deletedRef.current = null
     clearTimeout(toastTimer.current)
     setShowToast(false)
@@ -185,7 +201,11 @@ export default function Wall() {
   function handleEditorClose() {
     if (pendingSticky) {
       setStickies(prev => [...prev, pendingSticky])
+      insertSticky(pendingSticky)
       setPendingSticky(null)
+    } else {
+      const current = stickies.find(s => s.id === editingId)
+      if (current) updateSticky(current)
     }
     setEditingId(null)
     setEditOrigin(null)
@@ -216,7 +236,7 @@ export default function Wall() {
 
       {/* Empty state */}
       <AnimatePresence>
-        {stickies.length === 0 && !editingSticky && (
+        {stickies.length === 0 && !editingSticky && !loading && (
           <motion.div
             key="empty-state"
             initial={{ opacity: 0 }}
@@ -231,6 +251,14 @@ export default function Wall() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Sign out */}
+      <button
+        onClick={() => supabase.auth.signOut()}
+        className="fixed top-3 left-4 z-10 text-[11px] text-stone-300 hover:text-stone-500 transition-colors"
+      >
+        sign out
+      </button>
 
       {/* + button */}
       <button
