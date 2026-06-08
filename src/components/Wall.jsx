@@ -83,7 +83,7 @@ export default function Wall({ user }) {
   const [trashScope, trashAnimate] = useAnimate()
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { delay: 120, tolerance: 5 } })
   )
 
   useEffect(() => {
