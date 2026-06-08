@@ -10,7 +10,8 @@ function stickyFromRow(row) {
     rotation: row.rotation,
     createdAt: row.created_at,
     completedAt: row.completed_at,
-    tagId: row.tag_id,
+    tagIds: row.tag_ids ?? [],
+    sortOrder: row.sort_order ?? row.created_at ?? 0,
   }
 }
 
@@ -24,7 +25,8 @@ function stickyToRow(sticky) {
     rotation: sticky.rotation,
     created_at: sticky.createdAt,
     completed_at: sticky.completedAt,
-    tag_id: sticky.tagId,
+    tag_ids: sticky.tagIds ?? [],
+    sort_order: sticky.sortOrder ?? sticky.createdAt ?? 0,
   }
 }
 
@@ -36,7 +38,7 @@ export async function fetchStickies() {
   const { data, error } = await supabase
     .from('stickies')
     .select('*')
-    .order('created_at', { ascending: true })
+    .order('sort_order', { ascending: true })
   if (error) throw error
   return data.map(stickyFromRow)
 }
@@ -56,10 +58,10 @@ export async function insertSticky(sticky) {
 }
 
 export async function updateSticky(sticky) {
-  const { title, mode, content, color, rotation, completed_at, tag_id } = stickyToRow(sticky)
+  const { title, mode, content, color, rotation, completed_at, tag_ids, sort_order } = stickyToRow(sticky)
   const { error } = await supabase
     .from('stickies')
-    .update({ title, mode, content, color, rotation, completed_at, tag_id })
+    .update({ title, mode, content, color, rotation, completed_at, tag_ids, sort_order })
     .eq('id', sticky.id)
   if (error) console.error('updateSticky:', error)
 }
@@ -85,9 +87,17 @@ export async function deleteTag(tagId) {
 }
 
 export async function clearTagFromStickies(tagId) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('stickies')
-    .update({ tag_id: null })
-    .eq('tag_id', tagId)
-  if (error) console.error('clearTagFromStickies:', error)
+    .select('id, tag_ids')
+    .contains('tag_ids', [tagId])
+  if (error || !data?.length) return
+  await Promise.all(
+    data.map(row =>
+      supabase
+        .from('stickies')
+        .update({ tag_ids: row.tag_ids.filter(id => id !== tagId) })
+        .eq('id', row.id)
+    )
+  )
 }

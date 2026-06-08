@@ -10,6 +10,7 @@ function migrateSticky(raw) {
 }
 
 export function createSticky() {
+  const now = Date.now()
   return {
     id: crypto.randomUUID(),
     title: '',
@@ -17,9 +18,10 @@ export function createSticky() {
     content: emptyDoc(),
     color: '#fef08a',
     rotation: parseFloat((Math.random() * 8 - 4).toFixed(2)),
-    createdAt: Date.now(),
+    createdAt: now,
     completedAt: null,
-    tagId: null,
+    tagIds: [],
+    sortOrder: now,
   }
 }
 

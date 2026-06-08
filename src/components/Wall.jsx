@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion, useAnimate } from 'framer-motion'
+import {
+  DndContext, closestCenter,
+  PointerSensor, useSensor, useSensors,
+} from '@dnd-kit/core'
+import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { StickyNote } from './StickyNote'
 import { StickyEditor } from './StickyEditor'
 import { createSticky } from '../lib/stickies'
@@ -77,6 +82,10 @@ export default function Wall({ user }) {
   const menuRef = useRef(null)
   const [trashScope, trashAnimate] = useAnimate()
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  )
+
   useEffect(() => {
     if (!showMenu) return
     function handleClick(e) {
@@ -117,11 +126,30 @@ export default function Wall({ user }) {
 
   function handleDeleteTag(tagId) {
     setTags(prev => prev.filter(t => t.id !== tagId))
-    setStickies(prev => prev.map(s => s.tagId === tagId ? { ...s, tagId: null } : s))
-    setPendingSticky(prev => prev?.tagId === tagId ? { ...prev, tagId: null } : prev)
+    setStickies(prev => prev.map(s => ({ ...s, tagIds: (s.tagIds ?? []).filter(id => id !== tagId) })))
+    setPendingSticky(prev => prev ? { ...prev, tagIds: (prev.tagIds ?? []).filter(id => id !== tagId) } : prev)
     setFilterTagId(prev => prev === tagId ? null : prev)
     deleteTag(tagId)
     clearTagFromStickies(tagId)
+  }
+
+  function handleDragEnd({ active, over }) {
+    if (!over || active.id === over.id) return
+    const oldIndex = stickies.findIndex(s => s.id === active.id)
+    const newIndex = stickies.findIndex(s => s.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+    const reordered = arrayMove(stickies, oldIndex, newIndex)
+    const prev = reordered[newIndex - 1]
+    const next = reordered[newIndex + 1]
+    const newSortOrder = prev && next
+      ? (prev.sortOrder + next.sortOrder) / 2
+      : prev ? prev.sortOrder + 1000
+      : next ? next.sortOrder - 1000
+      : 0
+    const moved = { ...reordered[newIndex], sortOrder: newSortOrder }
+    reordered[newIndex] = moved
+    setStickies(reordered)
+    updateSticky(moved)
   }
 
   function handleEditStart(id) {
@@ -222,28 +250,31 @@ export default function Wall({ user }) {
     setEditOrigin(null)
   }
 
-  const visibleStickies = stickies.filter(s => !filterTagId || s.tagId === filterTagId)
+  const visibleStickies = stickies.filter(s => !filterTagId || (s.tagIds ?? []).includes(filterTagId))
 
   return (
     <div
       className="min-h-screen w-full relative"
       style={{ backgroundColor: '#faf6f0' }}
     >
-      <div className="flex flex-wrap gap-6 p-8 content-start">
-        <AnimatePresence>
-          {visibleStickies
-            .map(sticky => (
-              <StickyNote
-                key={sticky.id}
-                sticky={sticky}
-                tag={tags.find(t => t.id === sticky.tagId) ?? null}
-                filterTagId={filterTagId}
-                onEdit={handleEditStart}
-                onFilterTag={handleFilterTag}
-              />
-            ))}
-        </AnimatePresence>
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={visibleStickies.map(s => s.id)} strategy={rectSortingStrategy}>
+          <div className="flex flex-wrap gap-6 p-8 content-start">
+            <AnimatePresence>
+              {visibleStickies.map(sticky => (
+                <StickyNote
+                  key={sticky.id}
+                  sticky={sticky}
+                  tags={(sticky.tagIds ?? []).map(id => tags.find(t => t.id === id)).filter(Boolean)}
+                  filterTagId={filterTagId}
+                  onEdit={handleEditStart}
+                  onFilterTag={handleFilterTag}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Empty state */}
       <AnimatePresence>

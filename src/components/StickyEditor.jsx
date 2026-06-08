@@ -28,7 +28,7 @@ function getCardPos() {
 export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags, onCreateTag, onDeleteTag }) {
   const [title, setTitle] = useState(sticky.title)
   const [showTagPopover, setShowTagPopover] = useState(false)
-  const currentTag = tags?.find(t => t.id === sticky.tagId) ?? null
+  const currentTags = tags?.filter(t => (sticky.tagIds ?? []).includes(t.id)) ?? []
   // mode kept only for legacy checklist stickies
   const mode = sticky.mode
 
@@ -141,10 +141,10 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
         className="z-10 flex flex-col p-4 overflow-hidden"
         onPointerDown={e => e.stopPropagation()}
       >
-        {/* Tag pill */}
-        {currentTag && (
-          <div className="mb-2 flex-shrink-0">
-            <TagPill tag={currentTag} />
+        {/* Tag pills */}
+        {currentTags.length > 0 && (
+          <div className="mb-2 flex-shrink-0 flex flex-wrap gap-1">
+            {currentTags.map(t => <TagPill key={t.id} tag={t} />)}
           </div>
         )}
 
@@ -216,11 +216,11 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
             )}
             <button
               onClick={() => setShowTagPopover(v => !v)}
-              className="flex items-center rounded px-1.5 py-0.5 transition-colors hover:bg-black/5"
+              className="flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors hover:bg-black/5"
               title="tag"
             >
-              {currentTag
-                ? <TagPill tag={currentTag} />
+              {currentTags.length > 0
+                ? currentTags.map(t => <TagPill key={t.id} tag={t} />)
                 : <span className="text-xs text-gray-400 hover:text-gray-700 leading-none">+ tag</span>
               }
             </button>
@@ -239,13 +239,18 @@ export function StickyEditor({ sticky, onUpdate, onClose, onDelete, origin, tags
       {showTagPopover && (
         <TagPopover
           tags={tags ?? []}
-          currentTagId={sticky.tagId}
-          onApply={tagId => { onUpdate({ ...sticky, title: titleRef.current, tagId }); setShowTagPopover(false) }}
-          onRemove={() => { onUpdate({ ...sticky, title: titleRef.current, tagId: null }); setShowTagPopover(false) }}
+          currentTagIds={sticky.tagIds ?? []}
+          onToggle={tagId => {
+            const tagIds = sticky.tagIds ?? []
+            const newTagIds = tagIds.includes(tagId)
+              ? tagIds.filter(id => id !== tagId)
+              : [...tagIds, tagId]
+            onUpdate({ ...sticky, title: titleRef.current, tagIds: newTagIds })
+          }}
           onCreate={(name, color) => {
             const tag = onCreateTag(name, color)
-            onUpdate({ ...sticky, title: titleRef.current, tagId: tag.id })
-            setShowTagPopover(false)
+            const newTagIds = [...(sticky.tagIds ?? []), tag.id]
+            onUpdate({ ...sticky, title: titleRef.current, tagIds: newTagIds })
           }}
           onDelete={onDeleteTag}
           onClose={() => setShowTagPopover(false)}
